@@ -1,0 +1,45 @@
+#############################################
+#     || MYTHIC BOSSES messages.yml ||      #
+#############################################
+
+# A prefix for every message sent by the plugin
+prefix: '&7[&l&bMythicBosses&7]'
+
+
+# announcement to be sent 30 seconds before the boss spawns.
+# %boss% - boss name
+pre_announcement:
+  - '=======[Boss Spawn]==========='
+  - 'this is a pre-announcement'
+  - 'boss: %boss% will spawn in 30 seconds'
+  - 'this is a pre-announcement'
+  - '=============================='
+
+# %boss% - boss name
+# %x% - x coordinate
+# %y% - y coordinate
+# %z% - z coordinate
+bossSpawn:
+  - '=======[Boss Spawn]==========='
+  - 'The %boss% boss has been spawned.'
+  - 'Location: %x%, %y%, %z%'
+  - '=============================='
+
+# %boss% - boss name
+# %killer% - last hitter
+bossDeath:
+  - '=======[Boss Death]==========='
+  - 'The %boss% has been killed!'
+  - 'Killer: %killer%'
+  - 'gg'
+  - '=============================='
+
+# %boss% - boss name
+# %killer% - last hitter
+# %top_1_damager% - top 1 damager
+# %top_2_damager% - top 2 damager
+# %top_3_damager% - top 3 damager
+rewardedPlayers:
+  - '=============================='
+  - 'To be rewarded by %boss%: %killer%, %top_1_damager%, %top_2_damager%, and %top_3_damager%'
+  - '=============================='

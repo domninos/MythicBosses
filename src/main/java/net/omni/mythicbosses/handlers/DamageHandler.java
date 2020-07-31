@@ -6,7 +6,9 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class DamageHandler {
     private final ConcurrentHashMap<Entity, Map<Player, Double>> playerDamage = new ConcurrentHashMap<>();
@@ -25,7 +27,8 @@ public class DamageHandler {
                 continue;
 
             Map<Player, Double> playerMap = entry.getValue();
-            Player[] sorted = playerMap.keySet().toArray(new Player[2]);
+            Player[] sorted = playerMap.keySet().stream().filter(Objects::nonNull).collect(Collectors.toSet()).
+                    toArray(new Player[2]);
 
             Arrays.sort(sorted);
 
@@ -76,6 +79,7 @@ public class DamageHandler {
 
     public void flush() {
         playerDamage.clear();
+        lastDamaged.clear();
     }
 
     public boolean hasDamaged(Entity entity, Player player) {

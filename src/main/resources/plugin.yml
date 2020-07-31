@@ -1,7 +1,13 @@
 name: MythicBosses
 main: net.omni.mythicbosses.MythicBosses
-version: '1.0'
+version: '1.0-SNAPSHOT'
 api-version: '1.13'
 author: omni
 depend:
   - MythicMobs
+commands:
+  boss:
+    usage: /<command>
+    aliases:
+      - bosses
+      - mb

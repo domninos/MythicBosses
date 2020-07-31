@@ -1,2 +1,10 @@
 # Project exclude paths
 /target/
+.idea/.gitignore
+.idea/artifacts/
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
+.idea/uiDesigner.xml
+MythicBosses.iml
+src/test/

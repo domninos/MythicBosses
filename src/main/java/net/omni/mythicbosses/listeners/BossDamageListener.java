@@ -1,6 +1,7 @@
 package net.omni.mythicbosses.listeners;
 
 import io.lumine.xikage.mythicmobs.MythicMobs;
+import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import net.omni.mythicbosses.MythicBosses;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Arrow;
@@ -9,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 
 public class BossDamageListener implements Listener {
     private final MythicBosses plugin;
@@ -45,12 +45,15 @@ public class BossDamageListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDeath(EntityDeathEvent event) {
-        if (!MythicMobs.inst().getAPIHelper().isMythicMob(event.getEntity())) return;
-
+    public void onMythicMobsDeath(MythicMobDeathEvent event) {
+        Entity entity = event.getEntity();
         // TODO manage rewards
-        plugin.getDamageHandler().clear(event.getEntity());
 
+        Player lastDamager = plugin.getDamageHandler().getLastDamager(entity);
+        Player[] top3Damagers = plugin.getDamageHandler().getTop3Damagers(entity);
+
+
+        plugin.getDamageHandler().clear(entity);
     }
 
     public void register() {
