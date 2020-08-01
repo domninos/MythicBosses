@@ -25,10 +25,10 @@ public class Boss {
         this.interval = interval;
         this.locations = locations;
         this.spawnChance = spawnChance;
-        this.enabled = enabled;
         this.mythicMobName = mythicMob.getDisplayName();
-        this.setLocation = false;
-        this.setLocationInstance = null;
+        setEnabled(enabled);
+        setSetLocation(false);
+        setSetLocationInstance(null);
     }
 
     public PlaceholderString getMythicMobName() {
@@ -37,10 +37,6 @@ public class Boss {
 
     public int getInterval() {
         return interval;
-    }
-
-    public List<Location> getLocations() {
-        return locations;
     }
 
     public Location getLocationToSpawn() {
@@ -74,7 +70,7 @@ public class Boss {
     }
 
     public boolean isSetLocation() {
-        return this.setLocation;
+        return this.setLocation && getSetLocationInstance() != null;
     }
 
     public void setSetLocation(boolean setLocation) {

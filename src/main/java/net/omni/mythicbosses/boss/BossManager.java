@@ -11,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class BossManager {
     private final Set<Boss> bosses = new HashSet<>();
@@ -137,7 +138,9 @@ public class BossManager {
                 }
 
                 if (entry.getValue() <= 0) {
-                    spawnBoss(entry.getKey(), false);
+                    if (ThreadLocalRandom.current().nextInt(0, 100) <= entry.getKey().getSpawnChance())
+                        spawnBoss(entry.getKey(), false);
+
                     schedule.put(entry.getKey(), entry.getKey().getInterval());
                     continue;
                 }

@@ -147,6 +147,7 @@ public class BossDamageListener implements Listener {
                     // TODO add check -> summon a boss 30 mins before a scheduled boss spawn
                     //  if they are unable to  kill the boss within that time,
                     //  it should despawn and give the player their boss egg back
+                    //  ASK LOTUS
 
                     plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
                     plugin.sendConsole("&aSuccessfully spawned in boss from player");
