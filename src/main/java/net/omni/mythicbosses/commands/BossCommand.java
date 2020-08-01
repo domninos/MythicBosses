@@ -1,7 +1,10 @@
 package net.omni.mythicbosses.commands;
 
+import io.lumine.xikage.mythicmobs.mobs.EggManager;
 import net.omni.mythicbosses.MythicBosses;
+import net.omni.mythicbosses.boss.Boss;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -46,29 +49,82 @@ public class BossCommand implements CommandExecutor {
                 plugin.getConfigHandler().reload();
                 plugin.getBossManager().loadBosses();
 
-                // TODO others to reload
                 plugin.sendMessage(sender, "&aSuccessfully reloaded plugin.");
             } else if (args[0].equalsIgnoreCase("timers")) {
                 // TODO
-            } else if (args[0].equalsIgnoreCase("spawn")) {
-                // TODO
-            } else if (args[0].equalsIgnoreCase("give")) {
-                if (!(sender instanceof Player)) {
-                    plugin.sendMessage(sender, "&cOnly players can use this command.");
-                    return true;
-                }
 
-                // TODO
-            }
+
+            } else if (args[0].equalsIgnoreCase("spawn"))
+                plugin.sendMessage(sender, "&cUsage: /boss spawn <mythicMob> <location>");
+            else if (args[0].equalsIgnoreCase("give"))
+                plugin.sendMessage(sender, "&cUsage: /boss give <mythicMob> <location>");
 
             return true;
         } else if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("spawn")) {
-                // TODO: get location
-            } else if (args[0].equalsIgnoreCase("give")) {
-                // TODO
-            } else
+            if (args[0].equalsIgnoreCase("spawn"))
+                plugin.sendMessage(sender, "&cUsage: /boss spawn <mythicMob> <location>");
+            else if (args[0].equalsIgnoreCase("give"))
+                plugin.sendMessage(sender, "&cUsage: /boss give <mythicMob> <location>");
+            else
                 plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+
+            return true;
+        } else if (args.length == 3) {
+            if (!(args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("give"))) {
+                plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+                return true;
+            }
+
+            if (!(sender instanceof Player)) {
+                plugin.sendMessage(sender, "&cOnly players can use this command.");
+                return true;
+            }
+
+            Player player = (Player) sender;
+
+            Boss boss = plugin.getBossManager().getBoss(args[1]);
+
+            if (boss == null) {
+                plugin.sendMessage(sender, "&cBoss not found with name '" + args[1] + "'");
+                return true;
+            }
+
+            String[] split = args[2].split(",");
+
+            if (split.length <= 2) {
+                plugin.sendMessage(sender, "&aThe location argument is too short! It needs more than 2 coordinates.");
+                return true;
+            }
+
+            int x;
+            int y;
+            int z;
+
+            try {
+                x = Integer.parseInt(split[0]);
+                y = Integer.parseInt(split[1]);
+                z = Integer.parseInt(split[2]);
+            } catch (NumberFormatException e) {
+                plugin.sendMessage(sender,
+                        "&cSomething went wrong parsing location string. Please check if arguments are correct.");
+                return true;
+            }
+
+            Location location = new Location(player.getWorld(), x, y, z);
+
+            if (args[0].equalsIgnoreCase("spawn")) {
+                boss.setSetLocation(true);
+                boss.setSetLocationInstance(location);
+                plugin.sendMessage(sender, "&aSuccessfully set spawn location for boss " + boss.getMythicMobName()
+                        + "! X:" + x + " Y:" + y + " Z:" + z);
+                plugin.getBossManager().spawnBoss(boss, true);
+            } else {
+                boss.setSetLocation(true);
+                boss.setSetLocationInstance(location);
+                EggManager.giveMythicEgg(boss.getMythicMob(), player, 1);
+                plugin.sendMessage(sender, "&aSuccessfully given a mythic boss egg of "
+                        + boss.getMythicMobName().toString());
+            }
 
             return true;
         } else {

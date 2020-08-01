@@ -8,7 +8,9 @@ import net.omni.mythicbosses.listeners.BossDamageListener;
 import net.omni.mythicbosses.util.MessagesUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MythicBosses extends JavaPlugin {
@@ -38,8 +40,16 @@ public class MythicBosses extends JavaPlugin {
     @Override
     public void onDisable() {
 
+        bossManager.flush();
         damageHandler.flush();
         sendConsole("&aSuccessfully disabled MythicBosses");
+    }
+
+    public void broadcast(String message) {
+        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            sendMessage(player, message);
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.2f, 1f);
+        }
     }
 
     public void sendConsole(String text) {

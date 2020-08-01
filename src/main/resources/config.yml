@@ -2,9 +2,12 @@
 #     || MYTHIC BOSSES config.yml ||
 #############################################
 
-# Must copy the mobs you want to be considered as bosses in here.
-# interval: # time (in seconds) which they will spawn in the locations specified below.
-# locations # locations to spawn the boss.
+# IMPORTANT: Must copy the mobs you want to be considered as bosses in here.
+
+# enabled - if boss should be enabled
+# interval - time (in seconds) which they will spawn in the locations specified below.
+# spawnChance - chances of the boss spawning
+# locations - locations to spawn the boss.
 
 bosses:
   SkeletalKnight:
@@ -31,3 +34,6 @@ bosses:
     spawnChance: 30
     locations:
       - 'world,-240,60,204'
+
+# pre_announce_time - time (in seconds) to announce pre_announcement message from messages.yml.
+pre_announce_time: 30
