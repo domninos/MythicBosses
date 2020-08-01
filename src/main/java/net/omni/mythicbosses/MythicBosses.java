@@ -46,10 +46,10 @@ public class MythicBosses extends JavaPlugin {
     }
 
     public void broadcast(String message) {
-        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            sendMessage(player, message);
+        Bukkit.broadcastMessage(translate(message));
+
+        for (Player player : Bukkit.getServer().getOnlinePlayers())
             player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1.2f, 1f);
-        }
     }
 
     public void sendConsole(String text) {

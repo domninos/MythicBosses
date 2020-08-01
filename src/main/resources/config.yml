@@ -22,18 +22,6 @@ bosses:
     spawnChance: 30
     locations:
       - 'world,-240,60,204'
-  StaticallyChargedSheep:
-    enabled: true
-    interval: 60
-    spawnChance: 30
-    locations:
-      - 'world,-240,60,204'
-  AngrySludge:
-    enabled: true
-    interval: 60
-    spawnChance: 30
-    locations:
-      - 'world,-240,60,204'
 
 # pre_announce_time - time (in seconds) to announce pre_announcement message from messages.yml.
 pre_announce_time: 30

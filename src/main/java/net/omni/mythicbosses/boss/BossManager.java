@@ -132,7 +132,8 @@ public class BossManager {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Map.Entry<Boss, Integer> entry : schedule.entrySet()) {
                 if (entry.getValue() == pre_announcement_time) {
-                    plugin.broadcast(plugin.getMessagesUtil().getPreAnnouncement(entry.getKey().getMythicMobName().get()));
+                    plugin.broadcast(plugin.getMessagesUtil().
+                            getPreAnnouncement(entry.getKey().getMythicMobName().get(), pre_announcement_time));
                 }
 
                 if (entry.getValue() <= 0) {
