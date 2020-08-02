@@ -1,18 +1,15 @@
 package net.omni.mythicbosses.listeners;
 
 import io.lumine.xikage.mythicmobs.MythicMobs;
-import io.lumine.xikage.mythicmobs.adapters.AbstractPlayer;
-import io.lumine.xikage.mythicmobs.adapters.bukkit.BukkitAdapter;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
-import io.lumine.xikage.mythicmobs.drops.DropMetadata;
-import io.lumine.xikage.mythicmobs.drops.DropTable;
-import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 import io.lumine.xikage.mythicmobs.mobs.EggManager;
 import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import io.lumine.xikage.mythicmobs.volatilecode.VolatileMaterial;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -20,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 
@@ -82,32 +80,31 @@ public class BossDamageListener implements Listener {
         plugin.broadcast(plugin.getMessagesUtil().getBossDeath(boss.getMythicMobName().get(), lastDamager.getName()));
 
         Player[] top3Damagers = plugin.getDamageHandler().getTop3Damagers(entity);
-        List<String> top3DamagerList = Arrays.stream(top3Damagers).filter(Objects::nonNull).
-                map(Player::getName).collect(Collectors.toList());
+        List<Player> top3DamagerList = Arrays.stream(top3Damagers).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (top3DamagerList.isEmpty())
             plugin.sendConsole("&cTop 3 Damagers not found.");
 
-        ActiveMob activeMob = event.getMob();
+        boss.rewardPlayer(lastDamager, "%killer%");
 
-        DropTable dropTable = boss.getMythicMob().getDropTable();
+        Player top1 = top3DamagerList.get(0);
+        Player top2 = top3DamagerList.get(1);
+        Player top3 = top3DamagerList.get(2);
 
-        for (Player damagers : top3Damagers) {
-            if (damagers == null)
-                plugin.sendConsole("&aDamager not found.");
-            else {
-                AbstractPlayer abstractPlayer = BukkitAdapter.adapt(damagers);
+        if (top1 != null)
+            boss.rewardPlayer(top1, "%top_1_damager%");
 
-                dropTable.generate(new DropMetadata(activeMob, abstractPlayer)).give(abstractPlayer);
-            }
-        }
+        if (top2 != null)
+            boss.rewardPlayer(top2, "%top_2_damager%");
 
-        AbstractPlayer abstractPlayer = BukkitAdapter.adapt(lastDamager);
-
-        dropTable.generate(new DropMetadata(activeMob, abstractPlayer)).give(abstractPlayer);
+        if (top3 != null)
+            boss.rewardPlayer(top3, "%top_3_damager%");
 
         plugin.getMessagesUtil().getRewardedPlayers(boss.getMythicMobName().get(),
-                top3DamagerList.get(0), top3DamagerList.get(1), top3DamagerList.get(2));
+                top1 != null ? top1.getName() : null,
+                top2 != null ? top2.getName() : null,
+                top3 != null ? top3.getName() : null);
+
         plugin.getDamageHandler().clear(entity);
     }
 
@@ -115,45 +112,67 @@ public class BossDamageListener implements Listener {
     public void onPlayerSpawnEgg(PlayerInteractEvent event) {
         if (!(event.getAction().name().startsWith("RIGHT_CLICK"))) return;
         if (event.getItem() == null) return;
+        if (event.getClickedBlock() == null) return;
+        if (event.getItem().getType() != VolatileMaterial.SPAWN_EGG) return;
 
-        if (event.getItem().getType() != VolatileMaterial.SPAWN_EGG) {
-            ItemStack egg = event.getItem();
+        Block block = event.getClickedBlock();
+        ItemStack egg = event.getItem();
 
-            if (egg.getItemMeta() == null || !(egg.getItemMeta() instanceof SpawnEggMeta))
-                return;
+        if (egg.getItemMeta() == null || !(egg.getItemMeta() instanceof SpawnEggMeta))
+            return;
 
-            SpawnEggMeta meta = (SpawnEggMeta) egg.getItemMeta();
+        SpawnEggMeta meta = (SpawnEggMeta) egg.getItemMeta();
 
-            if (meta != null) {
-                List<String> lore = meta.getLore();
+        if (meta != null) {
+            List<String> lore = meta.getLore();
 
-                if (lore != null && lore.get(2) != null) {
-                    MythicMob mythicMob = EggManager.getMythicMobFromEgg(lore.get(2));
+            if (lore != null && lore.get(2) != null) {
+                Player player = event.getPlayer();
 
-                    if (mythicMob == null) {
-                        plugin.sendConsole("&cDebug! MythicMob not found from " + lore.get(2));
-                        return;
-                    }
+                MythicMob mythicMob = EggManager.getMythicMobFromEgg(lore.get(2));
 
-                    Boss boss = plugin.getBossManager().getBoss(mythicMob.getDisplayName().toString());
-
-                    if (boss == null) {
-                        plugin.sendConsole("&cDebug! Boss not found from " + mythicMob.getDisplayName().toString());
-                        return;
-                    }
-
-                    event.setCancelled(true);
-
-                    // TODO add check -> summon a boss 30 mins before a scheduled boss spawn
-                    //  if they are unable to  kill the boss within that time,
-                    //  it should despawn and give the player their boss egg back
-                    //  ASK LOTUS
-
-                    plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
-                    plugin.sendConsole("&aSuccessfully spawned in boss from player");
+                if (mythicMob == null) {
+                    plugin.sendConsole("&cDebug! MythicMob not found from " + lore.get(2));
+                    plugin.sendMessage(player, "&cSomething went wrong spawning your MythicMob egg.");
+                    return;
                 }
+
+                Boss boss = plugin.getBossManager().getBoss(mythicMob.getDisplayName().toString());
+
+                if (boss == null) {
+                    plugin.sendConsole("&cDebug! Boss not found from " + mythicMob.getDisplayName().toString());
+                    plugin.sendMessage(player,
+                            "&cSomething went wrong finding the boss form your MythicMob egg");
+                    return;
+                }
+
+                event.setCancelled(true);
+
+                if (boss.isToSpawn()) {
+                    plugin.sendMessage(player, "&cThere is a scheduled spawn in "
+                            + plugin.secToTime(plugin.getBossManager().getSchedule().get(boss)));
+                    return;
+                }
+
+                if (boss.isSetLocation()) {
+                    Location toSpawn = boss.getSetLocationInstance();
+
+                    if (toSpawn.distance(block.getLocation()) > plugin.getBossManager().getDistanceToBlock()) {
+                        plugin.sendMessage(player, "&cYou cannot spawn that boss here.");
+                        return;
+                    }
+                }
+
+                plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
+                plugin.getEggHandler().set(player, boss);
+                plugin.sendConsole("&aSuccessfully spawned in boss from player");
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.getEggHandler().remove(event.getPlayer());
     }
 
     public void register() {

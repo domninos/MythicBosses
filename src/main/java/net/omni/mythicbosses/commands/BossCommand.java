@@ -12,6 +12,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public class BossCommand implements CommandExecutor {
 
     private final MythicBosses plugin;
@@ -51,13 +53,22 @@ public class BossCommand implements CommandExecutor {
 
                 plugin.sendMessage(sender, "&aSuccessfully reloaded plugin.");
             } else if (args[0].equalsIgnoreCase("timers")) {
-                // TODO
+                plugin.sendMessage(sender, "&cScheduled boss spawn: ");
+                for (Map.Entry<Boss, Integer> entry : plugin.getBossManager().getSchedule().entrySet()) {
+                    if (entry.getKey() == null)
+                        continue;
 
+                    plugin.sendMessage(sender,
+                            entry.getKey().getMythicMobName().get() + " &3- "
+                                    + plugin.secToTime(entry.getValue()));
+                }
 
             } else if (args[0].equalsIgnoreCase("spawn"))
                 plugin.sendMessage(sender, "&cUsage: /boss spawn <mythicMob> <location>");
             else if (args[0].equalsIgnoreCase("give"))
                 plugin.sendMessage(sender, "&cUsage: /boss give <mythicMob> <location>");
+            else
+                plugin.sendMessage(sender, StringUtils.join(help, "\n"));
 
             return true;
         } else if (args.length == 2) {

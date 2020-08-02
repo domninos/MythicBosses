@@ -7,7 +7,7 @@ prefix: '&7[&l&bMythicBosses&7]'
 
 # announcement to be sent 30 seconds before the boss spawns.
 # %boss% - boss name
-# %time% - the pre_announcement_time
+# %time% - the pre_announce_time
 pre_announcement:
   - '=======[Boss Spawn]==========='
   - 'this is a pre-announcement'

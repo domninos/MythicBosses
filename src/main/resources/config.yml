@@ -8,6 +8,7 @@
 # interval - time (in seconds) which they will spawn in the locations specified below.
 # spawnChance - chances of the boss spawning
 # locations - locations to spawn the boss.
+# rewards - rewards to be given to the killer, and the top 3 damagers. (if command, just put {})
 
 bosses:
   SkeletalKnight:
@@ -16,12 +17,30 @@ bosses:
     spawnChance: 30
     locations:
       - 'world,-240,60,204'
+    rewards:
+      - 'DIAMOND,2'
+      - '{eco give %killer% 2000}'
+      - '{eco give %top_1_damager% 200}'
+      - '{eco give %top_2_damager% 150}'
+      - '{eco give %top_3_damager% 100}'
   SkeletonKing:
     enabled: true
     interval: 60
     spawnChance: 30
     locations:
       - 'world,-240,60,204'
+    rewards:
+      - 'DIAMOND,2'
+      - '{eco give %killer% 2000}'
+      - '{eco give %top_1_damager% 200}'
+      - '{eco give %top_2_damager% 150}'
+      - '{eco give %top_3_damager% 100}'
 
 # pre_announce_time - time (in seconds) to announce pre_announcement message from messages.yml.
 pre_announce_time: 30
+
+# toSpawnTime - time (in seconds) to make sure no one spawns a boss before a scheduled spawn.
+toSpawnTime: 1920
+
+# distanceToBlock - the distance of blocks where bosses should not be able to spawn from a location.
+distanceToBlock: 200

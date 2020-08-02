@@ -4,6 +4,7 @@ import net.omni.mythicbosses.boss.BossManager;
 import net.omni.mythicbosses.commands.BossCommand;
 import net.omni.mythicbosses.handlers.ConfigHandler;
 import net.omni.mythicbosses.handlers.DamageHandler;
+import net.omni.mythicbosses.handlers.EggHandler;
 import net.omni.mythicbosses.listeners.BossDamageListener;
 import net.omni.mythicbosses.util.MessagesUtil;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MythicBosses extends JavaPlugin {
@@ -20,6 +22,7 @@ public class MythicBosses extends JavaPlugin {
     private MessagesUtil messagesUtil;
     private DamageHandler damageHandler;
     private BossManager bossManager;
+    private EggHandler eggHandler;
 
     @Override
     public void onEnable() {
@@ -28,6 +31,7 @@ public class MythicBosses extends JavaPlugin {
         this.messagesUtil = new MessagesUtil(this);
 
         this.bossManager = new BossManager(this);
+        this.eggHandler = new EggHandler();
 
         this.damageHandler = new DamageHandler();
 
@@ -39,7 +43,10 @@ public class MythicBosses extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        HandlerList.unregisterAll(this);
+        Bukkit.getServer().getScheduler().cancelTasks(this);
 
+        eggHandler.flush();
         bossManager.flush();
         damageHandler.flush();
         sendConsole("&aSuccessfully disabled MythicBosses");
@@ -82,6 +89,32 @@ public class MythicBosses extends JavaPlugin {
 
     public MessagesUtil getMessagesUtil() {
         return messagesUtil;
+    }
+
+    public EggHandler getEggHandler() {
+        return eggHandler;
+    }
+
+    //https://stackoverflow.com/a/41563069
+    public String secToTime(int sec) {
+        int seconds = sec % 60;
+        int minutes = sec / 60;
+
+        if (minutes >= 60) {
+            int hours = minutes / 60;
+            minutes %= 60;
+
+            if (hours >= 24) {
+                int days = hours / 24;
+
+                return String.format("%dd %02dh %02dm %02ds", days, hours % 24, minutes, seconds);
+            }
+
+            return String.format("%02dh %02dm %02ds", hours, minutes, seconds);
+        } else if (minutes <= 0)
+            return String.format("%02ds", seconds);
+
+        return String.format("%02dm %02ds", minutes, seconds);
     }
 
     private void registerListeners() {
