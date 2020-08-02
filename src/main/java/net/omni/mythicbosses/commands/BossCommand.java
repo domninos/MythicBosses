@@ -4,7 +4,9 @@ import io.lumine.xikage.mythicmobs.mobs.EggManager;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -54,15 +56,18 @@ public class BossCommand implements CommandExecutor {
                 plugin.sendMessage(sender, "&aSuccessfully reloaded plugin.");
             } else if (args[0].equalsIgnoreCase("timers")) {
                 plugin.sendMessage(sender, "&cScheduled boss spawn: ");
-                for (Map.Entry<Boss, Integer> entry : plugin.getBossManager().getSchedule().entrySet()) {
-                    if (entry.getKey() == null)
-                        continue;
 
-                    plugin.sendMessage(sender,
-                            entry.getKey().getMythicMobName().get() + " &3- "
-                                    + plugin.secToTime(entry.getValue()));
-                }
+                if (!plugin.getBossManager().getSchedule().isEmpty()) {
+                    for (Map.Entry<Boss, Integer> entry : plugin.getBossManager().getSchedule().entrySet()) {
+                        if (entry.getKey() == null)
+                            continue;
 
+                        plugin.sendMessage(sender,
+                                entry.getKey().getMythicMobName().get() + " &3- "
+                                        + plugin.secToTime(entry.getValue()));
+                    }
+                } else
+                    plugin.sendMessage(sender, "&3None");
             } else if (args[0].equalsIgnoreCase("spawn"))
                 plugin.sendMessage(sender, "&cUsage: /boss spawn <mythicMob> <location>");
             else if (args[0].equalsIgnoreCase("give"))
@@ -86,17 +91,15 @@ public class BossCommand implements CommandExecutor {
                 return true;
             }
 
-            if (!(sender instanceof Player)) {
-                plugin.sendMessage(sender, "&cOnly players can use this command.");
-                return true;
-            }
-
-            Player player = (Player) sender;
-
             Boss boss = plugin.getBossManager().getBoss(args[1]);
 
             if (boss == null) {
                 plugin.sendMessage(sender, "&cBoss not found with name '" + args[1] + "'");
+                return true;
+            }
+
+            if (!boss.isEnabled()) {
+                plugin.sendMessage(sender, "&cThat boss is currently disabled.");
                 return true;
             }
 
@@ -121,15 +124,34 @@ public class BossCommand implements CommandExecutor {
                 return true;
             }
 
-            Location location = new Location(player.getWorld(), x, y, z);
+            World world = null;
+
+            if (split.length == 4)
+                world = Bukkit.getWorld(split[3]);
+
+            if (world == null && sender instanceof Player)
+                world = ((Player) sender).getWorld();
+
+            if (world == null) {
+                plugin.sendMessage(sender, "&cCould not parse location.");
+                return true;
+            }
+
+            Location location = new Location(world, x, y, z);
 
             if (args[0].equalsIgnoreCase("spawn")) {
                 boss.setSetLocation(true);
                 boss.setSetLocationInstance(location);
                 plugin.sendMessage(sender, "&aSuccessfully set spawn location for boss " + boss.getMythicMobName()
-                        + "! X:" + x + " Y:" + y + " Z:" + z);
+                        + "&a! X:" + x + " Y:" + y + " Z:" + z);
                 plugin.getBossManager().spawnBoss(boss, true);
-            } else {
+            } else { // /give
+                if (!(sender instanceof Player)) {
+                    plugin.sendMessage(sender, "&cOnly players can use this command.");
+                    return true;
+                }
+
+                Player player = (Player) sender;
                 boss.setSetLocation(true);
                 boss.setSetLocationInstance(location);
                 EggManager.giveMythicEgg(boss.getMythicMob(), player, 1);

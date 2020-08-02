@@ -21,7 +21,7 @@ public class MessagesUtil {
     }
 
     public void load() {
-        this.prefix = plugin.translate(getString("prefix"));
+        this.prefix = plugin.translate(plugin.getMessagesHandler().getString("prefix"));
 
         List<String> preAnnounceMsg = plugin.getMessagesHandler().getConfig().getStringList("pre_announcement");
         this.pre_announcement = plugin.translate(StringUtils.join(preAnnounceMsg, "\n"));
@@ -60,9 +60,5 @@ public class MessagesUtil {
 
     public String getPrefix() {
         return prefix;
-    }
-
-    private String getString(String path) {
-        return plugin.getMessagesHandler().getString(path);
     }
 }

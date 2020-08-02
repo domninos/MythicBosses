@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,12 +24,13 @@ public class BossManager {
     private int pre_announcement_time;
     private int toSpawnTime;
     private int distanceToBlock;
+    private int taskID;
 
     public BossManager(MythicBosses plugin) {
         this.plugin = plugin;
+        this.taskID = 0;
 
         loadBosses();
-        startSchedulers();
     }
 
     public void loadBosses() {
@@ -130,9 +132,6 @@ public class BossManager {
 
                 Boss bossInstance = new Boss(plugin, enabled, boss, interval, locations, rewards, spawnChance);
 
-                plugin.sendConsole("&aThe boss " + bossInstance.getName() + " is "
-                        + (bossInstance.isEnabled() ? "enabled" : "disabled") + ".");
-
                 if (bossInstance.getMythicMob() != null)
                     plugin.sendConsole("&aMythic mob found: " + bossInstance.getMythicMob().getDisplayName().toString());
                 else {
@@ -142,6 +141,9 @@ public class BossManager {
 
                 bosses.add(bossInstance);
                 plugin.sendConsole("&aSuccessfully loaded &b" + bossInstance.getName());
+
+                plugin.sendConsole("&aThe boss " + bossInstance.getName() + " is "
+                        + (bossInstance.isEnabled() ? "enabled" : "disabled") + ".");
             }
         }
 
@@ -149,55 +151,22 @@ public class BossManager {
         this.toSpawnTime = plugin.getConfigHandler().getInt("toSpawnTime");
         this.distanceToBlock = plugin.getConfigHandler().getInt("distanceToBlock");
 
-        plugin.sendConsole("&aStarting schedulers.");
+        startSchedulers();
     }
 
     private void startSchedulers() {
+        if (taskID != 0) {
+            Bukkit.getScheduler().cancelTask(taskID);
+            plugin.sendConsole("&aSuccessfully cancelled previous task");
+            plugin.sendConsole("&aRestarting task..");
+        }
+
         schedule.clear();
-        bosses.stream().filter(Objects::nonNull).forEach(boss -> schedule.put(boss, boss.getInterval()));
+        bosses.stream().filter(Objects::nonNull).filter(Boss::isEnabled).
+                forEach(boss -> schedule.put(boss, boss.getInterval()));
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            for (Map.Entry<Boss, Integer> entry : schedule.entrySet()) {
-                Boss boss = entry.getKey();
-                int time = entry.getValue();
-
-                if (!boss.isToSpawn() && time <= toSpawnTime) {
-                    boss.setToSpawn(true);
-
-                    Player toGiveBackEgg = plugin.getEggHandler().getPlayer(boss);
-
-                    ActiveMob activeMob = boss.getActiveMob();
-
-                    if (activeMob != null) {
-                        activeMob.setDespawnedSync();
-                        MythicMobs.inst().getMobManager().unregisterActiveMob(activeMob);
-                        activeMob.getEntity().remove();
-
-                        if (toGiveBackEgg != null) {
-                            plugin.sendMessage(toGiveBackEgg, "&cYour " + entry
-                                    + " &chas de-spawned and given back to you.");
-                            plugin.getEggHandler().remove(toGiveBackEgg);
-                            EggManager.giveMythicEgg(activeMob.getType(), toGiveBackEgg, 1);
-                        }
-                    }
-                }
-
-                if (time == pre_announcement_time) {
-                    plugin.broadcast(plugin.getMessagesUtil().
-                            getPreAnnouncement(boss.getMythicMobName().get(), pre_announcement_time));
-                }
-
-                if (time <= 0) {
-                    if (ThreadLocalRandom.current().nextInt(0, 100) <= boss.getSpawnChance())
-                        spawnBoss(entry.getKey(), false);
-
-                    schedule.put(boss, boss.getInterval());
-                    continue;
-                }
-
-                entry.setValue(time - 1);
-            }
-        }, 20, 20);
+        BukkitTask task = startTask();
+        this.taskID = task.getTaskId();
 
         plugin.sendConsole("&aSuccessfully started scheduler!");
     }
@@ -210,12 +179,18 @@ public class BossManager {
 
     public void flush() {
         bosses.clear();
+        schedule.clear();
     }
 
-    public void spawnBoss(Boss boss, boolean player) {
+    public void spawnBoss(Boss boss, boolean command) {
+        if (!boss.isEnabled()) {
+            plugin.sendConsole("&cTried to spawn " + boss.getName() + " but is disabled.");
+            return;
+        }
+
         Location location = boss.getLocationToSpawn();
 
-        if (player && boss.isSetLocation())
+        if (command && boss.isSetLocation())
             location = boss.getSetLocationInstance();
 
         if (location == null) {
@@ -238,5 +213,55 @@ public class BossManager {
 
     public int getDistanceToBlock() {
         return distanceToBlock;
+    }
+
+    private BukkitTask startTask() {
+        return Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            for (Map.Entry<Boss, Integer> entry : schedule.entrySet()) {
+                Boss boss = entry.getKey();
+                int time = entry.getValue();
+
+                if (!boss.isEnabled())
+                    continue;
+
+                if (time == pre_announcement_time) {
+                    // 58 <= 30
+                    if (ThreadLocalRandom.current().nextInt(0, 100) < boss.getSpawnChance()) {
+                        plugin.broadcast(plugin.getMessagesUtil().
+                                getPreAnnouncement(boss.getMythicMobName().get(), pre_announcement_time));
+                        boss.setToSpawn(true);
+                    }
+                }
+
+                if (boss.isToSpawn() && time <= toSpawnTime) {
+                    Player toGiveBackEgg = plugin.getEggHandler().getPlayer(boss);
+
+                    ActiveMob activeMob = boss.getActiveMob();
+
+                    if (activeMob != null) {
+                        activeMob.setDespawnedSync();
+                        MythicMobs.inst().getMobManager().unregisterActiveMob(activeMob);
+                        activeMob.getEntity().remove();
+
+                        if (toGiveBackEgg != null) {
+                            plugin.sendMessage(toGiveBackEgg, "&cYour " + entry
+                                    + " &chas de-spawned and given back to you.");
+                            plugin.getEggHandler().remove(toGiveBackEgg);
+                            EggManager.giveMythicEgg(activeMob.getType(), toGiveBackEgg, 1);
+                        }
+                    }
+                }
+
+                if (time <= 0) {
+                    if (boss.isToSpawn())
+                        spawnBoss(boss, false);
+
+                    schedule.put(boss, boss.getInterval());
+                    continue;
+                }
+
+                entry.setValue(time - 1);
+            }
+        }, 20, 20);
     }
 }

@@ -5,7 +5,7 @@ import net.omni.mythicbosses.commands.BossCommand;
 import net.omni.mythicbosses.handlers.ConfigHandler;
 import net.omni.mythicbosses.handlers.DamageHandler;
 import net.omni.mythicbosses.handlers.EggHandler;
-import net.omni.mythicbosses.listeners.BossDamageListener;
+import net.omni.mythicbosses.listeners.BossListener;
 import net.omni.mythicbosses.util.MessagesUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -118,7 +118,7 @@ public class MythicBosses extends JavaPlugin {
     }
 
     private void registerListeners() {
-        new BossDamageListener(this).register();
+        new BossListener(this).register();
     }
 
     private void registerCommands() {

@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class BossDamageListener implements Listener {
+public class BossListener implements Listener {
     private final MythicBosses plugin;
 
-    public BossDamageListener(MythicBosses plugin) {
+    public BossListener(MythicBosses plugin) {
         this.plugin = plugin;
     }
 
@@ -87,23 +87,37 @@ public class BossDamageListener implements Listener {
 
         boss.rewardPlayer(lastDamager, "%killer%");
 
-        Player top1 = top3DamagerList.get(0);
-        Player top2 = top3DamagerList.get(1);
-        Player top3 = top3DamagerList.get(2);
+        try {
+            Player top1 = top3DamagerList.get(0);
 
-        if (top1 != null)
-            boss.rewardPlayer(top1, "%top_1_damager%");
+            if (top1 != null)
+                boss.rewardPlayer(top1, "%top_1_damager%");
 
-        if (top2 != null)
-            boss.rewardPlayer(top2, "%top_2_damager%");
+            Player top2 = null;
 
-        if (top3 != null)
-            boss.rewardPlayer(top3, "%top_3_damager%");
+            if (top3DamagerList.size() >= 2) {
+                top2 = top3DamagerList.get(1);
 
-        plugin.getMessagesUtil().getRewardedPlayers(boss.getMythicMobName().get(),
-                top1 != null ? top1.getName() : null,
-                top2 != null ? top2.getName() : null,
-                top3 != null ? top3.getName() : null);
+                if (top2 != null)
+                    boss.rewardPlayer(top2, "%top_2_damager%");
+            }
+
+            Player top3 = null;
+
+            if (top3DamagerList.size() >= 3) {
+                top3 = top3DamagerList.get(2);
+
+                if (top3 != null)
+                    boss.rewardPlayer(top3, "%top_3_damager%");
+            }
+
+            plugin.broadcast(plugin.getMessagesUtil().getRewardedPlayers(boss.getMythicMobName().get(),
+                    top1 != null ? top1.getName() : null,
+                    top2 != null ? top2.getName() : null,
+                    top3 != null ? top3.getName() : null));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            plugin.sendConsole("&cThere are less than 3 damagers for " + boss.getName());
+        }
 
         plugin.getDamageHandler().clear(entity);
     }
@@ -142,7 +156,7 @@ public class BossDamageListener implements Listener {
                 if (boss == null) {
                     plugin.sendConsole("&cDebug! Boss not found from " + mythicMob.getDisplayName().toString());
                     plugin.sendMessage(player,
-                            "&cSomething went wrong finding the boss form your MythicMob egg");
+                            "&cSomething went wrong finding the boss form your MythicMob egg.");
                     return;
                 }
 
