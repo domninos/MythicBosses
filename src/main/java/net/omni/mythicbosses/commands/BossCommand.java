@@ -134,7 +134,7 @@ public class BossCommand implements CommandExecutor {
                 boss.setSetLocationInstance(location);
                 EggManager.giveMythicEgg(boss.getMythicMob(), player, 1);
                 plugin.sendMessage(sender, "&aSuccessfully given a mythic boss egg of "
-                        + boss.getMythicMobName().toString());
+                        + boss.getMythicMobName() + " &ato be spawned in X:" + x + " Y: " + y + " Z:" + z);
             }
 
             return true;
