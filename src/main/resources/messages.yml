@@ -21,7 +21,7 @@ pre_announcement:
 bossSpawn:
   - '=======[Boss Spawn]==========='
   - 'The %boss% boss has been spawned.'
-  - 'Location: %x%, %y%, %z%'
+  - 'Location: %world%, %x%, %y%, %z%'
   - '=============================='
 
 # %boss% - boss name

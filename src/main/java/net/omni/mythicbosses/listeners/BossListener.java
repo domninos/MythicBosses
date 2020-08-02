@@ -36,7 +36,7 @@ public class BossListener implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!MythicMobs.inst().getAPIHelper().isMythicMob(event.getEntity())) return;
-
+        if (!plugin.getBossManager().isBoss(event.getEntity())) return;
         if (!(event.getDamager() instanceof Player && event.getDamager() instanceof Arrow)) return;
 
         Player damager = null;
@@ -63,7 +63,8 @@ public class BossListener implements Listener {
     public void onMythicMobsDeath(MythicMobDeathEvent event) {
         Entity entity = event.getEntity();
 
-        Boss boss = plugin.getBossManager().getBoss(event.getMobType().getDisplayName().toString());
+        Boss boss = plugin.getBossManager().
+                getBoss(event.getMobType().getDisplayName().toString().replaceAll(" ", ""));
 
         if (boss == null) {
             plugin.sendConsole("&aCould not find boss with name: " + event.getMobType().getDisplayName().toString());
