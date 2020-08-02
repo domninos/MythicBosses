@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -200,6 +201,8 @@ public class BossManager {
         }
 
         ActiveMob activeMob = boss.getMythicMob().spawn(BukkitAdapter.adapt(location), 1);
+        activeMob.getEntity().setMetadata("mythicboss", "true");
+        activeMob.updateBossBar();
         boss.setActiveMob(activeMob);
         boss.setToSpawn(false);
 
@@ -213,6 +216,11 @@ public class BossManager {
 
     public int getDistanceToBlock() {
         return distanceToBlock;
+    }
+
+    public boolean isBoss(Entity entity) {
+        return entity.hasMetadata("mythicboss") &&
+                entity.getMetadata("mythicboss").get(0).asString().equals("true");
     }
 
     private BukkitTask startTask() {
@@ -239,7 +247,7 @@ public class BossManager {
                     ActiveMob activeMob = boss.getActiveMob();
 
                     if (activeMob != null) {
-                        activeMob.setDespawnedSync();
+                        activeMob.setDespawned();
                         MythicMobs.inst().getMobManager().unregisterActiveMob(activeMob);
                         activeMob.getEntity().remove();
 

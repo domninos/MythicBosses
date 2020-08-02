@@ -36,7 +36,7 @@ public class BossListener implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!MythicMobs.inst().getAPIHelper().isMythicMob(event.getEntity())) return;
-
+        if (!plugin.getBossManager().isBoss(event.getEntity())) return;
         if (!(event.getDamager() instanceof Player && event.getDamager() instanceof Arrow)) return;
 
         Player damager = null;
