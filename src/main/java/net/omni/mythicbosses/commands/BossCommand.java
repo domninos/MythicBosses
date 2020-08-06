@@ -19,12 +19,12 @@ import java.util.Map;
 public class BossCommand implements CommandExecutor {
 
     private final MythicBosses plugin;
-    private final String[] help;
+    private final String msg;
 
     public BossCommand(MythicBosses plugin) {
         this.plugin = plugin;
 
-        this.help = new String[]{
+        String[] help = new String[]{
                 "&l&bMythicBosses",
                 "&9/boss &7» Shows the help messages.",
                 "&9/boss spawn <mythicMob> <location> &7» (Location needs to be separated by ',') " +
@@ -34,6 +34,8 @@ public class BossCommand implements CommandExecutor {
                 "&9/boss reload &7» Reloads the plugin.",
                 "&9/boss timers &7» Shows the next boss scheduled to be spawned and time left before it spawns."
         };
+
+        this.msg = StringUtils.join(help, "\n");
     }
 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
@@ -44,7 +46,7 @@ public class BossCommand implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+            plugin.sendMessage(sender, msg);
             return true;
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reload")) {
@@ -73,7 +75,7 @@ public class BossCommand implements CommandExecutor {
             else if (args[0].equalsIgnoreCase("give"))
                 plugin.sendMessage(sender, "&cUsage: /boss give <mythicMob> <location>");
             else
-                plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+                plugin.sendMessage(sender, msg);
 
             return true;
         } else if (args.length == 2) {
@@ -82,12 +84,12 @@ public class BossCommand implements CommandExecutor {
             else if (args[0].equalsIgnoreCase("give"))
                 plugin.sendMessage(sender, "&cUsage: /boss give <mythicMob> <location>");
             else
-                plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+                plugin.sendMessage(sender, msg);
 
             return true;
         } else if (args.length == 3) {
             if (!(args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("give"))) {
-                plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+                plugin.sendMessage(sender, msg);
                 return true;
             }
 
@@ -161,7 +163,7 @@ public class BossCommand implements CommandExecutor {
 
             return true;
         } else {
-            plugin.sendMessage(sender, StringUtils.join(help, "\n"));
+            plugin.sendMessage(sender, msg);
             return true;
         }
     }

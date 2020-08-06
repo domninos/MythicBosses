@@ -142,6 +142,8 @@ public class BossListener implements Listener {
             List<String> lore = meta.getLore();
 
             if (lore != null && lore.get(2) != null) {
+                event.setCancelled(true);
+
                 Player player = event.getPlayer();
 
                 MythicMob mythicMob = EggManager.getMythicMobFromEgg(lore.get(2));
@@ -161,7 +163,10 @@ public class BossListener implements Listener {
                     return;
                 }
 
-                event.setCancelled(true);
+                if (!boss.isEnabled()) {
+                    plugin.sendMessage(player, "&aThat boss is not enabled.");
+                    return;
+                }
 
                 if (boss.isToSpawn()) {
                     plugin.sendMessage(player, "&cThere is a scheduled spawn in "

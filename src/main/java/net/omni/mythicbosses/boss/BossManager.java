@@ -205,6 +205,8 @@ public class BossManager {
         activeMob.updateBossBar();
         boss.setActiveMob(activeMob);
         boss.setToSpawn(false);
+        boss.setSetLocation(false);
+        boss.setSetLocationInstance(null);
 
         plugin.broadcast(plugin.getMessagesUtil().getBossSpawn(Objects.requireNonNull(location.getWorld()).getName(),
                 boss.getMythicMobName().get(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
@@ -256,6 +258,8 @@ public class BossManager {
                                     + " &chas de-spawned and given back to you.");
                             plugin.getEggHandler().remove(toGiveBackEgg);
                             EggManager.giveMythicEgg(activeMob.getType(), toGiveBackEgg, 1);
+                            boss.setSetLocationInstance(null);
+                            boss.setSetLocation(false);
                         }
                     }
                 }
