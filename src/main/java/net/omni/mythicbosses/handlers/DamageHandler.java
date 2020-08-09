@@ -1,7 +1,10 @@
 package net.omni.mythicbosses.handlers;
 
+import net.omni.mythicbosses.MythicBosses;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +16,11 @@ import java.util.stream.Collectors;
 public class DamageHandler {
     private final ConcurrentHashMap<Entity, Map<Player, Double>> playerDamage = new ConcurrentHashMap<>();
     private final Map<Entity, Player> lastDamaged = new HashMap<>();
+    private final MythicBosses plugin;
+
+    public DamageHandler(MythicBosses plugin) {
+        this.plugin = plugin;
+    }
 
     public Player[] getTop3Damagers(Entity entity) {
         if (entity == null)
@@ -43,10 +51,13 @@ public class DamageHandler {
 
     public void setLastDamager(Entity entity, Player player) {
         lastDamaged.put(entity, player);
+        entity.setMetadata("lastdamager", new FixedMetadataValue(plugin, player.getName()));
     }
 
     public Player getLastDamager(Entity entity) {
-        return lastDamaged.getOrDefault(entity, null);
+        return lastDamaged.getOrDefault(entity, null) == null
+                ? Bukkit.getPlayer(entity.hasMetadata("lastdamager")
+                ? entity.getMetadata("lastdamager").get(0).asString() : "null") : null;
     }
 
     public void addDamage(Entity entity, Player player, double damage) {

@@ -33,7 +33,7 @@ public class MythicBosses extends JavaPlugin {
         this.bossManager = new BossManager(this);
         this.eggHandler = new EggHandler();
 
-        this.damageHandler = new DamageHandler();
+        this.damageHandler = new DamageHandler(this);
 
         registerListeners();
         registerCommands();

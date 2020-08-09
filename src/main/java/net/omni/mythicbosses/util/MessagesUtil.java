@@ -40,7 +40,7 @@ public class MessagesUtil {
         return pre_announcement.replace("%boss%", bossName).replace("%time%", String.valueOf(time));
     }
 
-    public String getBossSpawn(String bossName, String world, int x, int y, int z) {
+    public String getBossSpawn(String world, String bossName, int x, int y, int z) {
         return bossSpawn.replace("%boss%", bossName).
                 replace("%world%", world).
                 replace("%x%", String.valueOf(x)).

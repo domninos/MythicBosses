@@ -201,6 +201,12 @@ public class BossManager {
         }
 
         ActiveMob activeMob = boss.getMythicMob().spawn(BukkitAdapter.adapt(location), 1);
+
+        if (activeMob == null) {
+            plugin.sendConsole("&aCould not spawn mob. Check MythicMob error.");
+            return;
+        }
+
         activeMob.getEntity().setMetadata("mythicboss", "true");
         activeMob.updateBossBar();
         boss.setActiveMob(activeMob);

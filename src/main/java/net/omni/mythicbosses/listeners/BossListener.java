@@ -8,6 +8,7 @@ import io.lumine.xikage.mythicmobs.volatilecode.VolatileMaterial;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
@@ -37,7 +38,6 @@ public class BossListener implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!MythicMobs.inst().getAPIHelper().isMythicMob(event.getEntity())) return;
         if (!plugin.getBossManager().isBoss(event.getEntity())) return;
-        if (!(event.getDamager() instanceof Player && event.getDamager() instanceof Arrow)) return;
 
         Player damager = null;
 
@@ -56,6 +56,7 @@ public class BossListener implements Listener {
         Entity entity = event.getEntity();
 
         plugin.getDamageHandler().setLastDamager(entity, damager);
+        plugin.sendMessage(damager, "&aSet last damager");
         plugin.getDamageHandler().addDamage(entity, damager, event.getDamage());
     }
 
@@ -64,7 +65,8 @@ public class BossListener implements Listener {
         Entity entity = event.getEntity();
 
         Boss boss = plugin.getBossManager().
-                getBoss(event.getMobType().getDisplayName().toString().replaceAll(" ", ""));
+                getBoss(ChatColor.stripColor(event.getMobType().getDisplayName().toString()).
+                        replaceAll(" ", ""));
 
         if (boss == null) {
             plugin.sendConsole("&aCould not find boss with name: " + event.getMobType().getDisplayName().toString());
@@ -73,10 +75,12 @@ public class BossListener implements Listener {
 
         Player lastDamager = plugin.getDamageHandler().getLastDamager(entity);
 
-        if (lastDamager == null) {
+        if (lastDamager == null || lastDamager.getName().equals("null")) {
             plugin.sendConsole("&aLast damager not found.");
             return;
         }
+
+        lastDamager.sendMessage("I FOUND U");
 
         plugin.broadcast(plugin.getMessagesUtil().getBossDeath(boss.getMythicMobName().get(), lastDamager.getName()));
 
