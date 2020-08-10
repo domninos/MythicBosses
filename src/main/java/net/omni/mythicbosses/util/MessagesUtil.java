@@ -41,7 +41,7 @@ public class MessagesUtil {
     }
 
     public String getBossSpawn(String world, String bossName, int x, int y, int z) {
-        return bossSpawn.replace("%boss%", bossName).
+        return bossSpawn.replace("%boss%", bossName + "&r").
                 replace("%world%", world).
                 replace("%x%", String.valueOf(x)).
                 replace("%y%", String.valueOf(y)).
@@ -53,7 +53,7 @@ public class MessagesUtil {
     }
 
     public String getRewardedPlayers(String bossName, String top_1_damager, String top_2_damager, String top_3_damager) {
-        return rewardedPlayers.replace("%boss%", bossName).
+        return rewardedPlayers.replace("%boss%", bossName + "&r").
                 replace("%top_1_damager%", top_1_damager == null ? "None" : top_1_damager).
                 replace("%top_2_damager%", top_2_damager == null ? "None" : top_2_damager).
                 replace("%top_3_damager%", top_3_damager == null ? "None" : top_3_damager);
