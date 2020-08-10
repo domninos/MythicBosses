@@ -3,10 +3,10 @@ package net.omni.mythicbosses.handlers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -27,14 +27,19 @@ public class DamageHandler {
                 continue;
 
             Map<Player, Double> playerMap = entry.getValue();
-            Player[] sorted = playerMap.keySet().stream().filter(Objects::nonNull).collect(Collectors.toSet()).
-                    toArray(new Player[2]);
 
-            Arrays.sort(sorted);
+            Map<Player, Double> resultSorted = playerMap.entrySet().stream()
+                    .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                    .limit(3)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+            Player[] sorted = resultSorted.keySet().toArray(new Player[0]);
 
             for (int index = 0; index < sorted.length; index++) {
-                if (sorted[index] != null)
+                if (sorted[index] != null) {
                     players[index] = sorted[index];
+                    System.out.println("sorted: " + index + " = " + sorted[index].getName());
+                }
             }
         }
 
