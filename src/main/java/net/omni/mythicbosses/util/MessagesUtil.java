@@ -49,11 +49,13 @@ public class MessagesUtil {
     }
 
     public String getBossDeath(String bossName, String killer) {
-        return bossDeath.replace("%boss%", bossName).replace("%killer%", killer);
+        return bossDeath.replace("%boss%", bossName + "&r").replace("%killer%", killer);
     }
 
-    public String getRewardedPlayers(String bossName, String top_1_damager, String top_2_damager, String top_3_damager) {
+    public String getRewardedPlayers(String bossName, String killer, String top_1_damager, String top_2_damager,
+                                     String top_3_damager) {
         return rewardedPlayers.replace("%boss%", bossName + "&r").
+                replace("%killer%", killer == null ? "None" : killer).
                 replace("%top_1_damager%", top_1_damager == null ? "None" : top_1_damager).
                 replace("%top_2_damager%", top_2_damager == null ? "None" : top_2_damager).
                 replace("%top_3_damager%", top_3_damager == null ? "None" : top_3_damager);

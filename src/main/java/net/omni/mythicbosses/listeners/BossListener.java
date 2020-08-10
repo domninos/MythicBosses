@@ -44,7 +44,7 @@ public class BossListener implements Listener {
 
         if (event.getDamager() instanceof Player)
             damager = (Player) event.getDamager();
-        else {
+        else if (event.getDamager() instanceof Arrow) {
             Arrow arrow = (Arrow) event.getDamager();
 
             if (arrow.getShooter() instanceof Player)
@@ -94,7 +94,7 @@ public class BossListener implements Listener {
         try {
             Player top1 = top3DamagerList.get(0);
 
-            if (top1 != null)
+            if (top1 != null && !top1.getName().equals(lastDamager.getName()))
                 boss.rewardPlayer(top1, "%top_1_damager%");
 
             Player top2 = null;
@@ -102,7 +102,7 @@ public class BossListener implements Listener {
             if (top3DamagerList.size() >= 2) {
                 top2 = top3DamagerList.get(1);
 
-                if (top2 != null)
+                if (top2 != null && !top2.getName().equals(lastDamager.getName()))
                     boss.rewardPlayer(top2, "%top_2_damager%");
             }
 
@@ -111,11 +111,12 @@ public class BossListener implements Listener {
             if (top3DamagerList.size() >= 3) {
                 top3 = top3DamagerList.get(2);
 
-                if (top3 != null)
+                if (top3 != null && !top3.getName().equals(lastDamager.getName()))
                     boss.rewardPlayer(top3, "%top_3_damager%");
             }
 
             plugin.broadcast(plugin.getMessagesUtil().getRewardedPlayers(boss.getMythicMobName().get(),
+                    lastDamager.getName(),
                     top1 != null ? top1.getName() : null,
                     top2 != null ? top2.getName() : null,
                     top3 != null ? top3.getName() : null));
@@ -157,7 +158,9 @@ public class BossListener implements Listener {
                     return;
                 }
 
-                Boss boss = plugin.getBossManager().getBoss(mythicMob.getDisplayName().toString());
+                Boss boss = plugin.getBossManager().getBoss(
+                        ChatColor.stripColor(mythicMob.getDisplayName().toString()).
+                                replaceAll(" ", ""));
 
                 if (boss == null) {
                     plugin.sendConsole("&cDebug! Boss not found from " + mythicMob.getDisplayName().toString());
@@ -188,7 +191,7 @@ public class BossListener implements Listener {
 
                 Pair<Boolean, String> pair = plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
 
-                plugin.sendMessage(player, "&a" + pair.getValue());
+                plugin.sendMessage(player, pair.getKey() ? "&a" : "&c" + pair.getValue());
 
                 if (pair.getKey()) {
                     plugin.getEggHandler().set(player, boss);

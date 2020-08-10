@@ -147,6 +147,8 @@ public class BossCommand implements CommandExecutor {
                 boss.setSetLocationInstance(location);
                 plugin.sendMessage(sender, "&aSuccessfully set spawn location for boss " + boss.getMythicMobName()
                         + "&a! X:" + x + " Y:" + y + " Z:" + z);
+                plugin.sendMessage(sender, "&aNOTICE: There is a scheduled spawn of boss " + boss.getMythicMobName()
+                        + " &ain " + plugin.secToTime(plugin.getBossManager().getSchedule().get(boss)));
 
                 Pair<Boolean, String> pair = plugin.getBossManager().spawnBoss(boss, true);
 

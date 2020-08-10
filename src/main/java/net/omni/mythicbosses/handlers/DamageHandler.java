@@ -36,10 +36,8 @@ public class DamageHandler {
             Player[] sorted = resultSorted.keySet().toArray(new Player[0]);
 
             for (int index = 0; index < sorted.length; index++) {
-                if (sorted[index] != null) {
+                if (sorted[index] != null)
                     players[index] = sorted[index];
-                    System.out.println("sorted: " + index + " = " + sorted[index].getName());
-                }
             }
         }
 

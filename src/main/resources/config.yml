@@ -16,8 +16,8 @@ bosses:
     interval: 60
     spawnChance: 30
     locations:
-      - 'world,-240,60,204'
-    rewards:
+      - 'world,0,0,0'
+    rewards: # MATERIAL,amount - can add amount if needed
       - 'DIAMOND,2'
       - '{eco give %killer% 2000}'
       - '{eco give %top_1_damager% 200}'
@@ -28,8 +28,8 @@ bosses:
     interval: 60
     spawnChance: 30
     locations:
-      - 'world,-240,60,204'
-    rewards:
+      - 'world,0,0,0'
+    rewards: # MATERIAL,amount - can add amount if needed
       - 'DIAMOND,2'
       - '{eco give %killer% 2000}'
       - '{eco give %top_1_damager% 200}'

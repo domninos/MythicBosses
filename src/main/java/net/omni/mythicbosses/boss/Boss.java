@@ -46,8 +46,6 @@ public class Boss {
     }
 
     public void rewardPlayer(Player player, String toReplace) {
-        player.sendMessage("REWARDING U");
-
         for (String reward : rewards) {
             if (reward.contains("{")) {
                 reward = reward.replace("{", "").replace("}", "").

@@ -253,7 +253,6 @@ public class BossManager {
 
                 if (boss.isToSpawn() && time <= toSpawnTime) {
                     Player toGiveBackEgg = plugin.getEggHandler().getPlayer(boss);
-
                     ActiveMob activeMob = boss.getActiveMob();
 
                     if (activeMob != null) {
@@ -265,6 +264,7 @@ public class BossManager {
                             plugin.sendMessage(toGiveBackEgg, "&cYour " + entry
                                     + " &chas de-spawned and given back to you.");
                             plugin.getEggHandler().remove(toGiveBackEgg);
+
                             EggManager.giveMythicEgg(activeMob.getType(), toGiveBackEgg, 1);
                             boss.setSetLocationInstance(null);
                             boss.setSetLocation(false);
