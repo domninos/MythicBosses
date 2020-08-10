@@ -5,6 +5,7 @@ import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.mobs.EggManager;
 import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import io.lumine.xikage.mythicmobs.volatilecode.VolatileMaterial;
+import javafx.util.Pair;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.bukkit.Bukkit;
@@ -56,7 +57,6 @@ public class BossListener implements Listener {
         Entity entity = event.getEntity();
 
         plugin.getDamageHandler().setLastDamager(entity, damager);
-        plugin.sendMessage(damager, "&aSet last damager");
         plugin.getDamageHandler().addDamage(entity, damager, event.getDamage());
     }
 
@@ -75,14 +75,13 @@ public class BossListener implements Listener {
 
         Player lastDamager = plugin.getDamageHandler().getLastDamager(entity);
 
-        if (lastDamager == null || lastDamager.getName().equals("null")) {
+        if (lastDamager == null) {
             plugin.sendConsole("&aLast damager not found.");
             return;
         }
 
-        lastDamager.sendMessage("I FOUND U");
-
-        plugin.broadcast(plugin.getMessagesUtil().getBossDeath(boss.getMythicMobName().get(), lastDamager.getName()));
+        plugin.broadcast(plugin.getMessagesUtil().getBossDeath(boss.getMythicMobName().get(),
+                lastDamager.getName()));
 
         Player[] top3Damagers = plugin.getDamageHandler().getTop3Damagers(entity);
         List<Player> top3DamagerList = Arrays.stream(top3Damagers).filter(Objects::nonNull).collect(Collectors.toList());
@@ -187,9 +186,14 @@ public class BossListener implements Listener {
                     }
                 }
 
-                plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
-                plugin.getEggHandler().set(player, boss);
-                plugin.sendConsole("&aSuccessfully spawned in boss from player");
+                Pair<Boolean, String> pair = plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
+
+                plugin.sendMessage(player, "&a" + pair.getValue());
+
+                if (pair.getKey()) {
+                    plugin.getEggHandler().set(player, boss);
+                    plugin.sendConsole("&aSuccessfully spawned in boss from player");
+                }
             }
         }
     }

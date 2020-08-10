@@ -46,6 +46,8 @@ public class Boss {
     }
 
     public void rewardPlayer(Player player, String toReplace) {
+        player.sendMessage("REWARDING U");
+
         for (String reward : rewards) {
             if (reward.contains("{")) {
                 reward = reward.replace("{", "").replace("}", "").
@@ -65,7 +67,7 @@ public class Boss {
                 continue;
             }
 
-            ItemStack itemReward = new ItemStack(material);
+            ItemStack itemReward = new ItemStack(material, 1);
 
             if (split.length > 1) {
                 int amount;

@@ -1,6 +1,7 @@
 package net.omni.mythicbosses.commands;
 
 import io.lumine.xikage.mythicmobs.mobs.EggManager;
+import javafx.util.Pair;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.apache.commons.lang.StringUtils;
@@ -146,7 +147,10 @@ public class BossCommand implements CommandExecutor {
                 boss.setSetLocationInstance(location);
                 plugin.sendMessage(sender, "&aSuccessfully set spawn location for boss " + boss.getMythicMobName()
                         + "&a! X:" + x + " Y:" + y + " Z:" + z);
-                plugin.getBossManager().spawnBoss(boss, true);
+
+                Pair<Boolean, String> pair = plugin.getBossManager().spawnBoss(boss, true);
+
+                plugin.sendMessage(sender, (pair.getKey() ? "&c" : "&a") + pair.getValue());
             } else { // /give
                 if (!(sender instanceof Player)) {
                     plugin.sendMessage(sender, "&cOnly players can use this command.");
