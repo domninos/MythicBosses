@@ -5,7 +5,6 @@ import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.mobs.EggManager;
 import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import io.lumine.xikage.mythicmobs.volatilecode.VolatileMaterial;
-import javafx.util.Pair;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.bukkit.Bukkit;
@@ -189,13 +188,9 @@ public class BossListener implements Listener {
                     }
                 }
 
-                Pair<Boolean, String> pair = plugin.getBossManager().spawnBoss(boss, boss.isSetLocation());
-
-                plugin.sendMessage(player, pair.getKey() ? "&a" : "&c" + pair.getValue());
-
-                if (pair.getKey()) {
+                if (plugin.getBossManager().spawnBoss(player, boss, boss.isSetLocation())) {
                     plugin.getEggHandler().set(player, boss);
-                    plugin.sendConsole("&aSuccessfully spawned in boss from player");
+                    plugin.sendConsole("&aSuccessfully spawned in boss from player.");
                 }
             }
         }

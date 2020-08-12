@@ -1,7 +1,6 @@
 package net.omni.mythicbosses.commands;
 
 import io.lumine.xikage.mythicmobs.mobs.EggManager;
-import javafx.util.Pair;
 import net.omni.mythicbosses.MythicBosses;
 import net.omni.mythicbosses.boss.Boss;
 import org.apache.commons.lang.StringUtils;
@@ -150,9 +149,7 @@ public class BossCommand implements CommandExecutor {
                 plugin.sendMessage(sender, "&aNOTICE: There is a scheduled spawn of boss " + boss.getMythicMobName()
                         + " &ain " + plugin.secToTime(plugin.getBossManager().getSchedule().get(boss)));
 
-                Pair<Boolean, String> pair = plugin.getBossManager().spawnBoss(boss, true);
-
-                plugin.sendMessage(sender, (pair.getKey() ? "&c" : "&a") + pair.getValue());
+                plugin.getBossManager().spawnBoss(sender, boss, true);
             } else { // /give
                 if (!(sender instanceof Player)) {
                     plugin.sendMessage(sender, "&cOnly players can use this command.");

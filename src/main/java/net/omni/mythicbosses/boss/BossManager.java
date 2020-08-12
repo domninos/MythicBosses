@@ -4,16 +4,17 @@ import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.adapters.bukkit.BukkitAdapter;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
 import io.lumine.xikage.mythicmobs.mobs.EggManager;
-import javafx.util.Pair;
 import net.md_5.bungee.api.ChatColor;
 import net.omni.mythicbosses.MythicBosses;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -184,10 +185,13 @@ public class BossManager {
         schedule.clear();
     }
 
-    public Pair<Boolean, String> spawnBoss(Boss boss, boolean command) {
+    public boolean spawnBoss(@Nullable CommandSender spawner, Boss boss, boolean command) {
         if (!boss.isEnabled()) {
             plugin.sendConsole("&cTried to spawn " + boss.getName() + " but is disabled.");
-            return new Pair<>(false, "This boss is not enabled.");
+
+            if (spawner != null)
+                plugin.sendMessage(spawner, "&cThis boss is not enabled");
+            return false;
         }
 
         Location location = boss.getLocationToSpawn();
@@ -198,14 +202,22 @@ public class BossManager {
         if (location == null) {
             plugin.sendConsole("&aTried to spawn " + boss.getMythicMobName().toString()
                     + " but location to spawn not found!");
-            return new Pair<>(false, "The location to spawn was not found,");
+
+            if (spawner != null)
+                plugin.sendMessage(spawner, "&cThe location to spawn was not found.");
+
+            return false;
         }
 
         ActiveMob activeMob = boss.getMythicMob().spawn(BukkitAdapter.adapt(location), 1);
 
         if (activeMob == null) {
             plugin.sendConsole("&aCould not spawn mob. Check MythicMob error.");
-            return new Pair<>(false, "This mob encountered an error. Please check console.");
+
+            if (spawner != null)
+                plugin.sendMessage(spawner, "&cThis mob encountered an error. Please chekc console.");
+
+            return false;
         }
 
         activeMob.getEntity().setMetadata("mythicboss", "true");
@@ -217,7 +229,10 @@ public class BossManager {
 
         plugin.broadcast(plugin.getMessagesUtil().getBossSpawn(Objects.requireNonNull(location.getWorld()).getName(),
                 boss.getMythicMobName().get(), location.getBlockX(), location.getBlockY(), location.getBlockZ()));
-        return new Pair<>(true, "Successfully spawned boss.");
+
+        if (spawner != null)
+            plugin.sendMessage(spawner, "&aSuccessfully spawned boss.");
+        return true;
     }
 
     public ConcurrentHashMap<Boss, Integer> getSchedule() {
@@ -274,7 +289,7 @@ public class BossManager {
 
                 if (time <= 0) {
                     if (boss.isToSpawn())
-                        spawnBoss(boss, false);
+                        spawnBoss(null, boss, false);
 
                     schedule.put(boss, boss.getInterval());
                     continue;
